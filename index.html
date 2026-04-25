@@ -1,0 +1,1258 @@
+import { useState, useEffect, useRef } from "react";
+
+// ─── Config ──────────────────────────────────────────────────────────────────
+const MCP_SERVERS = [{ type: "url", url: "https://gmailmcp.googleapis.com/mcp/v1", name: "gmail" }];
+const MODEL = "claude-sonnet-4-20250514";
+
+// ─── API helpers ─────────────────────────────────────────────────────────────
+async function callClaude(prompt, maxTokens = 5000) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content: prompt }],
+      mcp_servers: MCP_SERVERS,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.text().catch(() => "");
+    throw new Error(`API ${res.status}: ${err.slice(0, 120)}`);
+  }
+  return res.json();
+}
+
+function getText(data) {
+  return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+}
+
+function parseJSON(str) {
+  try {
+    const c = str.replace(/```(?:json)?\n?/g, "").replace(/\n?```/g, "").trim();
+    const m = c.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+    return m ? JSON.parse(m[0]) : JSON.parse(c);
+  } catch { return null; }
+}
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+const CATEGORY_COLORS = {
+  Newsletter:   { bg: "#2a1d4a", border: "#5b3f9e", text: "#a78bfa" },
+  Notification: { bg: "#1a2a40", border: "#3060a0", text: "#60a5fa" },
+  Personal:     { bg: "#1a3330", border: "#2a6050", text: "#34d399" },
+  Work:         { bg: "#3a2a10", border: "#7a5510", text: "#f59e0b" },
+  Finance:      { bg: "#3a1f10", border: "#7a3a10", text: "#f97316" },
+  Social:       { bg: "#3a1a2a", border: "#7a2a50", text: "#ec4899" },
+  Promotion:    { bg: "#3a2010", border: "#7a4010", text: "#fb923c" },
+  Other:        { bg: "#1e2235", border: "#3a4060", text: "#94a3b8" },
+};
+
+const QUICK_FILTERS = [
+  { icon: "✦",  label: "Inbox",       query: "in:inbox" },
+  { icon: "○",  label: "Unread",      query: "in:inbox is:unread" },
+  { icon: "☆",  label: "Starred",     query: "is:starred" },
+  { icon: "◈",  label: "Newsletters", query: "in:inbox (unsubscribe OR newsletter OR list-unsubscribe)" },
+  { icon: "◉",  label: "Promotions",  query: "category:promotions" },
+  { icon: "◎",  label: "Social",      query: "category:social" },
+  { icon: "◷",  label: "Old (90d+)",  query: "in:inbox older_than:90d" },
+];
+
+// ─── Styles ──────────────────────────────────────────────────────────────────
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #08090d;
+  --surf:     #0e1018;
+  --surf2:    #13161f;
+  --surf3:    #181c28;
+  --line:     #1c2032;
+  --line2:    #252a3d;
+  --text:     #c4ccd8;
+  --muted:    #546070;
+  --accent:   #4f8de8;
+  --accent-d: rgba(79,141,232,0.12);
+  --ok:       #3ecf8e;
+  --err:      #f76c6c;
+  --warn:     #f7c86c;
+}
+
+html, body, #root { height: 100%; }
+
+.app {
+  display: flex;
+  height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 196px;
+  min-width: 196px;
+  background: var(--surf);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 18px 16px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #1a3a6a, #4f8de8);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.logo-sub {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.nav {
+  flex: 1;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+}
+
+.nav-section {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 8px 4px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 9px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: 'DM Sans', inherit;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+  line-height: 1.2;
+}
+
+.nav-btn .nav-icon {
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.nav-btn:hover { background: var(--surf2); color: var(--text); }
+.nav-btn.active { background: var(--accent-d); color: var(--accent); font-weight: 500; }
+.nav-btn.active .nav-icon { opacity: 1; }
+
+.nav-sep { height: 1px; background: var(--line); margin: 6px 0; }
+
+.sidebar-foot {
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.provider-pill {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  background: #13233a;
+  color: #4a7fc1;
+  border: 1px solid #1e3a5a;
+  border-radius: 4px;
+  padding: 3px 7px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surf);
+  flex-shrink: 0;
+}
+
+.search-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surf2);
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,141,232,0.08);
+}
+
+.search-icon { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
+}
+
+.search-input::placeholder { color: var(--muted); font-family: 'DM Sans', inherit; }
+
+.topbar-hint {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  white-space: nowrap;
+  border-left: 1px solid var(--line2);
+  padding-left: 10px;
+}
+
+/* Action bar */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: #0c1422;
+  border-bottom: 1px solid #1a2d50;
+  flex-shrink: 0;
+  animation: slideDown 0.15s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sel-count {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--accent);
+  padding: 3px 8px;
+  background: var(--accent-d);
+  border-radius: 4px;
+  margin-right: 2px;
+}
+
+.act {
+  padding: 4px 11px;
+  border-radius: 5px;
+  border: 1px solid;
+  font-size: 12px;
+  font-family: 'DM Sans', inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+  letter-spacing: -0.01em;
+}
+
+.act:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.act-archive { background: #1a2e1a; border-color: #2d4a2d; color: var(--ok); }
+.act-archive:hover:not(:disabled) { background: #243d24; }
+
+.act-read { background: var(--surf2); border-color: var(--line2); color: var(--muted); }
+.act-read:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+.act-label { background: #1e1a2e; border-color: #352d50; color: #a78bfa; position: relative; }
+.act-label:hover:not(:disabled) { background: #2a2540; }
+
+.act-close {
+  background: transparent;
+  border-color: var(--line2);
+  color: var(--muted);
+  margin-left: auto;
+  padding: 4px 9px;
+}
+.act-close:hover { color: var(--err); border-color: var(--err); }
+
+/* Label dropdown */
+.lbl-wrap { position: relative; }
+
+.lbl-drop {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  background: var(--surf2);
+  border: 1px solid var(--line2);
+  border-radius: 9px;
+  padding: 6px;
+  min-width: 170px;
+  z-index: 200;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.lbl-item {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'DM Sans', inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.1s;
+}
+
+.lbl-item:hover { background: var(--surf3); }
+
+.lbl-new {
+  display: flex;
+  gap: 4px;
+  margin-top: 5px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line);
+}
+
+.lbl-new input {
+  flex: 1;
+  background: var(--surf);
+  border: 1px solid var(--line2);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 4px 8px;
+  outline: none;
+  font-family: inherit;
+}
+.lbl-new input:focus { border-color: var(--accent); }
+
+.lbl-new button {
+  padding: 4px 9px;
+  background: var(--accent-d);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ── Content ── */
+.content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Thread list */
+.thread-list {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line2) transparent;
+}
+
+.thread-list.split {
+  flex: none;
+  width: 42%;
+  min-width: 280px;
+  border-right: 1px solid var(--line);
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surf);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.list-meta {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  margin-left: 2px;
+}
+
+.cb {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Thread row */
+.t-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.1s;
+  position: relative;
+}
+
+.t-row:hover { background: var(--surf2); }
+.t-row.selected { background: rgba(79,141,232,0.07); }
+.t-row.open { background: var(--surf3); border-left: 2px solid var(--accent); padding-left: 14px; }
+
+.unread-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 5px;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(79,141,232,0.5);
+}
+
+.t-info { flex: 1; min-width: 0; }
+
+.t-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.t-from {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.t-row.unread .t-from {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.t-date {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.t-subject {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 1px;
+}
+
+.t-row.unread .t-subject { color: var(--text); }
+
+.t-snippet {
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.65;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 500;
+  border: 1px solid;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Thread Detail ── */
+.detail {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line2) transparent;
+  position: relative;
+}
+
+.detail-toprow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.detail-subject {
+  font-size: 17px;
+  font-weight: 600;
+  color: #e2e8f0;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  flex: 1;
+}
+
+.detail-close {
+  background: var(--surf2);
+  border: 1px solid var(--line2);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.detail-close:hover { color: var(--err); border-color: var(--err); background: #2e1a1a; }
+
+.unsub-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #1a2e1a;
+  border: 1px solid #2d4a2d;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: var(--ok);
+}
+
+.unsub-link {
+  padding: 4px 12px;
+  background: #243d24;
+  border: 1px solid var(--ok);
+  border-radius: 5px;
+  color: var(--ok);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.unsub-link:hover { background: #2d4f2d; }
+
+.msg-block {
+  background: var(--surf);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+
+.msg-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.msg-from { font-size: 13px; font-weight: 500; color: var(--text); }
+.msg-to { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.msg-date { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; white-space: nowrap; flex-shrink: 0; }
+
+.msg-body {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── States ── */
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 280px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 24px;
+}
+
+.state-icon {
+  font-size: 28px;
+  opacity: 0.4;
+}
+
+.state-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--line2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner.lg { width: 30px; height: 30px; border-width: 3px; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: toastIn 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.toast.info    { background: #131e30; border: 1px solid #1e3a5a; color: var(--accent); }
+.toast.success { background: #151f15; border: 1px solid #2a402a; color: var(--ok); }
+.toast.error   { background: #2a1515; border: 1px solid #4a2020; color: var(--err); }
+
+/* ── Busy overlay ── */
+.busy {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,9,13,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  backdrop-filter: blur(3px);
+  gap: 14px;
+  flex-direction: column;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── Empty detail placeholder ── */
+.detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--muted);
+  opacity: 0.5;
+  user-select: none;
+}
+
+.detail-empty .big { font-size: 36px; }
+.detail-empty p { font-size: 13px; }
+`;
+
+// ─── Component ───────────────────────────────────────────────────────────────
+export default function MailCtrl() {
+  const [threads, setThreads]           = useState([]);
+  const [selected, setSelected]         = useState(new Set());
+  const [loading, setLoading]           = useState(false);
+  const [busy, setBusy]                 = useState(false);
+  const [busyMsg, setBusyMsg]           = useState("");
+  const [activeFilter, setActiveFilter] = useState("Inbox");
+  const [activeThreadId, setActiveThreadId] = useState(null);
+  const [threadDetail, setThreadDetail] = useState(null); // null | "loading" | object
+  const [labels, setLabels]             = useState([]);
+  const [toast, setToast]               = useState(null);
+  const [searchVal, setSearchVal]       = useState("");
+  const [showLbl, setShowLbl]           = useState(false);
+  const [newLbl, setNewLbl]             = useState("");
+  const toastTimer                      = useRef(null);
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(msg, type = "info") {
+    clearTimeout(toastTimer.current);
+    setToast({ msg, type });
+    toastTimer.current = setTimeout(() => setToast(null), 3800);
+  }
+
+  // ── Load threads ──────────────────────────────────────────────────────────
+  async function loadThreads(query, label) {
+    setLoading(true);
+    setSelected(new Set());
+    setActiveThreadId(null);
+    setThreadDetail(null);
+    if (label) setActiveFilter(label);
+    try {
+      const data = await callClaude(`
+Use the Gmail MCP search_threads tool with this exact query: "${query}"
+Request the maximum available results (at least 25 if possible).
+
+After the tool returns results, output ONLY a raw JSON array with NO markdown, NO explanation, NO code fences.
+Each element must have exactly these fields:
+{
+  "id": "thread id",
+  "subject": "subject line or (no subject)",
+  "from": "sender name or email",
+  "date": "human-readable date",
+  "snippet": "preview text up to 120 chars",
+  "unread": true or false,
+  "labels": ["INBOX"]
+}
+Output only the JSON array. Nothing before or after it.
+      `, 6000);
+      const parsed = parseJSON(getText(data));
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setThreads(parsed);
+        showToast(`${parsed.length} threads`, "success");
+      } else if (Array.isArray(parsed)) {
+        setThreads([]);
+        showToast("No results found", "info");
+      } else {
+        showToast("Could not parse results — try again", "error");
+        setThreads([]);
+      }
+    } catch (e) {
+      showToast(e.message.slice(0, 80), "error");
+    }
+    setLoading(false);
+  }
+
+  // ── Smart Sort ────────────────────────────────────────────────────────────
+  async function smartSort() {
+    setLoading(true);
+    setActiveFilter("Smart Sort");
+    setSelected(new Set());
+    setActiveThreadId(null);
+    setThreadDetail(null);
+    showToast("AI is analyzing your inbox…", "info");
+    try {
+      const data = await callClaude(`
+Use the Gmail MCP search_threads tool with query "in:inbox" to get up to 25 threads.
+
+After getting results, categorize each thread by type, then output ONLY a raw JSON array:
+[{
+  "id": "thread id",
+  "subject": "subject",
+  "from": "sender",
+  "date": "date",
+  "snippet": "preview",
+  "unread": false,
+  "labels": [],
+  "category": "one of: Newsletter | Notification | Personal | Work | Finance | Social | Promotion | Other"
+}]
+Output ONLY the JSON array.
+      `, 7000);
+      const parsed = parseJSON(getText(data));
+      if (Array.isArray(parsed)) {
+        setThreads(parsed);
+        showToast("Inbox categorized ✦", "success");
+      } else {
+        showToast("Smart Sort failed — try again", "error");
+      }
+    } catch (e) {
+      showToast(e.message.slice(0, 80), "error");
+    }
+    setLoading(false);
+  }
+
+  // ── Archive selected ──────────────────────────────────────────────────────
+  async function archiveSelected() {
+    if (!selected.size) return;
+    setBusy(true);
+    setBusyMsg(`Archiving ${selected.size} thread(s)…`);
+    const ids = [...selected];
+    try {
+      await callClaude(`
+Use the Gmail MCP unlabel_thread tool to remove the "INBOX" label from each thread ID listed below.
+Call unlabel_thread once for each ID:
+${ids.map(i => `- ${i}`).join("\n")}
+After all calls complete, say: done
+      `, 3000);
+      setThreads(prev => prev.filter(t => !selected.has(t.id)));
+      setSelected(new Set());
+      setActiveThreadId(null);
+      setThreadDetail(null);
+      showToast(`${ids.length} thread(s) archived ✓`, "success");
+    } catch (e) {
+      showToast(e.message.slice(0, 80), "error");
+    }
+    setBusy(false);
+  }
+
+  // ── Mark read ────────────────────────────────────────────────────────────
+  async function markReadSelected() {
+    if (!selected.size) return;
+    setBusy(true);
+    setBusyMsg("Marking as read…");
+    const ids = [...selected];
+    try {
+      await callClaude(`
+Use the Gmail MCP unlabel_thread tool to remove the "UNREAD" label from each thread ID:
+${ids.map(i => `- ${i}`).join("\n")}
+After completing, say: done
+      `, 3000);
+      setThreads(prev => prev.map(t => selected.has(t.id) ? { ...t, unread: false } : t));
+      setSelected(new Set());
+      showToast("Marked as read ✓", "success");
+    } catch (e) {
+      showToast(e.message.slice(0, 80), "error");
+    }
+    setBusy(false);
+  }
+
+  // ── Apply label ──────────────────────────────────────────────────────────
+  async function applyLabel(lbl) {
+    if (!selected.size || !lbl.trim()) return;
+    setShowLbl(false);
+    setNewLbl("");
+    setBusy(true);
+    setBusyMsg(`Applying "${lbl}"…`);
+    const ids = [...selected];
+    try {
+      await callClaude(`
+Use Gmail MCP:
+1. Call list_labels to check if label "${lbl}" exists. Note its ID.
+2. If it does NOT exist, call create_label with name "${lbl}" to create it.
+3. For each thread ID below, call label_thread with that label:
+${ids.map(i => `- ${i}`).join("\n")}
+After all done, say: done
+      `, 5000);
+      showToast(`"${lbl}" applied to ${ids.length} thread(s) ✓`, "success");
+      setSelected(new Set());
+    } catch (e) {
+      showToast(e.message.slice(0, 80), "error");
+    }
+    setBusy(false);
+  }
+
+  // ── Open thread ──────────────────────────────────────────────────────────
+  async function openThread(thread) {
+    if (activeThreadId === thread.id) {
+      setActiveThreadId(null);
+      setThreadDetail(null);
+      return;
+    }
+    setActiveThreadId(thread.id);
+    setThreadDetail("loading");
+    // Mark read locally
+    setThreads(prev => prev.map(t => t.id === thread.id ? { ...t, unread: false } : t));
+    try {
+      const data = await callClaude(`
+Use the Gmail MCP get_thread tool to fetch thread ID: ${thread.id}
+
+After getting results, output ONLY this raw JSON (NO markdown, NO explanation):
+{
+  "id": "${thread.id}",
+  "subject": "subject line",
+  "messages": [
+    {
+      "from": "sender name <email>",
+      "to": "recipient",
+      "date": "date string",
+      "body": "full message body text, up to 1500 characters"
+    }
+  ],
+  "unsubscribeLink": "URL from List-Unsubscribe header or null",
+  "unsubscribeLinkInBody": "any unsubscribe URL found in body or null"
+}
+Output ONLY the JSON.
+      `, 5000);
+      const parsed = parseJSON(getText(data));
+      setThreadDetail(parsed || { error: "Could not parse thread content" });
+    } catch (e) {
+      setThreadDetail({ error: e.message });
+    }
+  }
+
+  // ── Load labels ──────────────────────────────────────────────────────────
+  async function loadLabels() {
+    try {
+      const data = await callClaude(`
+Use Gmail MCP list_labels to get all labels.
+Output ONLY a raw JSON array of user-created label name strings: ["LabelA","LabelB"]
+Exclude system labels (INBOX, SENT, DRAFT, TRASH, SPAM, UNREAD, STARRED, IMPORTANT, CATEGORY_*).
+Output ONLY the JSON array.
+      `, 2000);
+      const parsed = parseJSON(getText(data));
+      if (Array.isArray(parsed)) setLabels(parsed.filter(l => typeof l === "string"));
+    } catch {}
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    loadThreads("in:inbox", "Inbox");
+    loadLabels();
+  }, []);
+
+  // ── Selection helpers ────────────────────────────────────────────────────
+  function toggleSelect(e, id) {
+    e.stopPropagation();
+    setSelected(prev => {
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  }
+
+  function toggleAll() {
+    setSelected(selected.size === threads.length && threads.length > 0
+      ? new Set()
+      : new Set(threads.map(t => t.id))
+    );
+  }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    const q = searchVal.trim();
+    if (q) loadThreads(q, `"${q}"`);
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────────
+  const hasDetail = activeThreadId !== null;
+
+  return (
+    <>
+      <style>{CSS}</style>
+      <div className="app">
+
+        {/* ── Sidebar ── */}
+        <aside className="sidebar">
+          <div className="logo">
+            <div className="logo-mark">M</div>
+            <div>
+              <div className="logo-text">MailCtrl</div>
+              <div className="logo-sub">email manager</div>
+            </div>
+          </div>
+
+          <nav className="nav">
+            <div className="nav-section">Filters</div>
+            {QUICK_FILTERS.map(f => (
+              <button
+                key={f.label}
+                className={`nav-btn ${activeFilter === f.label ? "active" : ""}`}
+                onClick={() => loadThreads(f.query, f.label)}
+              >
+                <span className="nav-icon">{f.icon}</span>
+                <span>{f.label}</span>
+              </button>
+            ))}
+
+            <div className="nav-sep" />
+            <div className="nav-section">AI</div>
+            <button
+              className={`nav-btn ${activeFilter === "Smart Sort" ? "active" : ""}`}
+              onClick={smartSort}
+            >
+              <span className="nav-icon">◈</span>
+              <span>Smart Sort</span>
+            </button>
+          </nav>
+
+          <div className="sidebar-foot">
+            <div className="provider-pill">Gmail</div>
+          </div>
+        </aside>
+
+        {/* ── Main ── */}
+        <main className="main">
+
+          {/* Topbar */}
+          <div className="topbar">
+            <form className="search-wrap" onSubmit={handleSearch}>
+              <span className="search-icon">⌕</span>
+              <input
+                className="search-input"
+                placeholder="Search Gmail… (press Enter)"
+                value={searchVal}
+                onChange={e => setSearchVal(e.target.value)}
+              />
+            </form>
+            <div className="topbar-hint">{activeFilter}</div>
+          </div>
+
+          {/* Bulk action bar */}
+          {selected.size > 0 && (
+            <div className="action-bar">
+              <span className="sel-count">{selected.size} selected</span>
+              <button className="act act-archive" onClick={archiveSelected} disabled={busy}>
+                Archive
+              </button>
+              <button className="act act-read" onClick={markReadSelected} disabled={busy}>
+                Mark Read
+              </button>
+              <div className="lbl-wrap">
+                <button
+                  className="act act-label"
+                  onClick={() => setShowLbl(p => !p)}
+                  disabled={busy}
+                >
+                  Label ▾
+                </button>
+                {showLbl && (
+                  <div className="lbl-drop">
+                    {labels.length === 0 && (
+                      <div style={{ padding: "6px 10px", fontSize: 12, color: "var(--muted)" }}>
+                        No custom labels yet
+                      </div>
+                    )}
+                    {labels.map(l => (
+                      <button key={l} className="lbl-item" onClick={() => applyLabel(l)}>{l}</button>
+                    ))}
+                    <div className="lbl-new">
+                      <input
+                        placeholder="New label…"
+                        value={newLbl}
+                        onChange={e => setNewLbl(e.target.value)}
+                        onKeyDown={e => e.key === "Enter" && newLbl.trim() && applyLabel(newLbl.trim())}
+                        autoFocus
+                      />
+                      <button onClick={() => newLbl.trim() && applyLabel(newLbl.trim())}>+</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <button className="act act-close" onClick={() => setSelected(new Set())}>✕</button>
+            </div>
+          )}
+
+          {/* Content: list + detail */}
+          <div className="content">
+
+            {/* Thread list */}
+            <div className={`thread-list ${hasDetail ? "split" : ""}`}>
+              {loading ? (
+                <div className="state-box">
+                  <div className="spinner lg" />
+                  <div className="state-title">Loading threads…</div>
+                  <div style={{ fontSize: 11, fontFamily: "DM Mono, monospace" }}>
+                    Gmail MCP → Claude AI
+                  </div>
+                </div>
+              ) : threads.length === 0 ? (
+                <div className="state-box">
+                  <div className="state-icon">◌</div>
+                  <div className="state-title">No emails found</div>
+                </div>
+              ) : (
+                <>
+                  <div className="list-head">
+                    <input
+                      type="checkbox"
+                      className="cb"
+                      checked={selected.size === threads.length && threads.length > 0}
+                      onChange={toggleAll}
+                    />
+                    <span className="list-meta">{threads.length} threads</span>
+                  </div>
+                  {threads.map(t => (
+                    <div
+                      key={t.id}
+                      className={[
+                        "t-row",
+                        t.unread ? "unread" : "",
+                        selected.has(t.id) ? "selected" : "",
+                        activeThreadId === t.id ? "open" : "",
+                      ].filter(Boolean).join(" ")}
+                      onClick={() => openThread(t)}
+                    >
+                      <input
+                        type="checkbox"
+                        className="cb"
+                        checked={selected.has(t.id)}
+                        onChange={e => toggleSelect(e, t.id)}
+                        onClick={e => e.stopPropagation()}
+                      />
+                      {t.unread && <div className="unread-dot" />}
+                      <div className="t-info">
+                        <div className="t-top">
+                          <span className="t-from">{t.from}</span>
+                          <span className="t-date">{t.date}</span>
+                        </div>
+                        <div className="t-subject">{t.subject || "(no subject)"}</div>
+                        <div className="t-snippet">{t.snippet}</div>
+                        {t.category && CATEGORY_COLORS[t.category] && (
+                          <span
+                            className="cat-badge"
+                            style={{
+                              background: CATEGORY_COLORS[t.category].bg,
+                              borderColor: CATEGORY_COLORS[t.category].border,
+                              color: CATEGORY_COLORS[t.category].text,
+                            }}
+                          >
+                            {t.category}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+
+            {/* Thread detail */}
+            {hasDetail && (
+              <div className="detail">
+                {threadDetail === "loading" ? (
+                  <div className="state-box">
+                    <div className="spinner lg" />
+                    <div className="state-title">Loading thread…</div>
+                  </div>
+                ) : threadDetail === null ? (
+                  <div className="detail-empty">
+                    <div className="big">✉</div>
+                    <p>Select a thread</p>
+                  </div>
+                ) : threadDetail.error ? (
+                  <div className="state-box">
+                    <div className="state-icon">⚠</div>
+                    <div className="state-title">{threadDetail.error}</div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="detail-toprow">
+                      <div className="detail-subject">
+                        {threadDetail.subject || "(no subject)"}
+                      </div>
+                      <button
+                        className="detail-close"
+                        onClick={() => { setActiveThreadId(null); setThreadDetail(null); }}
+                      >✕</button>
+                    </div>
+
+                    {(threadDetail.unsubscribeLink || threadDetail.unsubscribeLinkInBody) && (
+                      <div className="unsub-banner">
+                        <span>◈ Unsubscribe link detected</span>
+                        <a
+                          href={threadDetail.unsubscribeLink || threadDetail.unsubscribeLinkInBody}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="unsub-link"
+                        >
+                          Unsubscribe ↗
+                        </a>
+                      </div>
+                    )}
+
+                    {(threadDetail.messages || []).map((msg, i) => (
+                      <div key={i} className="msg-block">
+                        <div className="msg-head">
+                          <div>
+                            <div className="msg-from">{msg.from}</div>
+                            {msg.to && <div className="msg-to">to {msg.to}</div>}
+                          </div>
+                          <div className="msg-date">{msg.date}</div>
+                        </div>
+                        <div className="msg-body">{msg.body}</div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* Toast */}
+      {toast && <div className={`toast ${toast.type}`}>{toast.msg}</div>}
+
+      {/* Busy overlay */}
+      {busy && (
+        <div className="busy">
+          <div className="spinner lg" />
+          <span>{busyMsg}</span>
+        </div>
+      )}
+    </>
+  );
+}
