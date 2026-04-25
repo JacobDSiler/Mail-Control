@@ -19,7 +19,6 @@
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f);font-size:14px;overflow:hidden}
 .app{display:flex;height:100vh;overflow:hidden}
 
-/* Sidebar */
 .sb{width:206px;min-width:206px;background:var(--surf);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
 .logo{display:flex;align-items:center;gap:10px;padding:16px 14px;border-bottom:1px solid var(--line)}
 .logo-m{width:30px;height:30px;background:linear-gradient(135deg,#1a3a7a,#5b8ef0);border-radius:8px;display:grid;place-items:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
@@ -52,7 +51,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .sign-out{background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;font-family:var(--m);margin-left:auto;transition:color .1s}
 .sign-out:hover{color:var(--err)}
 
-/* Main */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .tbar{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--surf);flex-shrink:0}
 .sw{flex:1;display:flex;align-items:center;gap:8px;background:var(--surf2);border:1px solid var(--line2);border-radius:8px;padding:6px 11px;transition:border-color .15s,box-shadow .15s}
@@ -62,12 +60,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .sw-inp::placeholder{color:var(--muted);font-family:var(--f)}
 .tbar-lbl{font-size:11px;font-family:var(--m);color:var(--muted);white-space:nowrap;border-left:1px solid var(--line2);padding-left:10px}
 
-/* Action bar */
-.abar{display:none;align-items:center;gap:6px;padding:7px 14px;background:#0a0f1e;border-bottom:1px solid #1a2a4a;flex-shrink:0}
+.abar{display:none;align-items:center;gap:6px;padding:7px 14px;background:#0a0f1e;border-bottom:1px solid #1a2a4a;flex-shrink:0;flex-wrap:wrap}
 .abar.show{display:flex;animation:slideD .15s ease}
 @keyframes slideD{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.sel-n{font-size:11px;font-family:var(--m);color:var(--acc);padding:3px 8px;background:var(--acc-d);border-radius:4px;margin-right:2px}
-.ab{padding:4px 12px;border-radius:5px;border:1px solid;font-size:12px;font-family:var(--f);font-weight:600;cursor:pointer;transition:all .1s}
+.sel-n{font-size:11px;font-family:var(--m);color:var(--acc);padding:3px 8px;background:var(--acc-d);border-radius:4px;margin-right:2px;white-space:nowrap}
+.ab{padding:4px 12px;border-radius:5px;border:1px solid;font-size:12px;font-family:var(--f);font-weight:600;cursor:pointer;transition:all .1s;white-space:nowrap}
 .ab:disabled{opacity:.4;cursor:not-allowed}
 .ab-arch{background:#152215;border-color:#2a402a;color:var(--ok)}
 .ab-arch:hover:not(:disabled){background:#1d3020}
@@ -77,6 +74,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .ab-del:hover:not(:disabled){background:#3a1a1a}
 .ab-lbl{background:#1a1730;border-color:#2d2850;color:#a78bfa}
 .ab-lbl:hover:not(:disabled){background:#221e3a}
+.ab-filter{background:#1a2a30;border-color:#2a5060;color:#60d0f0}
+.ab-filter:hover:not(:disabled){background:#1f3540}
+.ab-sender{background:#2a1520;border-color:#5a2040;color:#f06090}
+.ab-sender:hover:not(:disabled){background:#381828}
+.ab-empty-trash{background:#2a1a08;border-color:#5a3a08;color:var(--warn)}
+.ab-empty-trash:hover:not(:disabled){background:#3a2208}
 .ab-x{background:transparent;border-color:var(--line2);color:var(--muted);margin-left:auto;padding:4px 9px}
 .ab-x:hover{color:var(--err);border-color:var(--err)}
 .lw{position:relative}
@@ -90,7 +93,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .lnew input:focus{border-color:var(--acc)}
 .lnew button{padding:4px 10px;background:var(--acc-d);border:1px solid var(--acc);border-radius:5px;color:var(--acc);cursor:pointer;font-size:15px;font-weight:700}
 
-/* Content */
 .content{display:flex;flex:1;overflow:hidden}
 .tlist{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
 .tlist.split{flex:none;width:40%;min-width:270px;border-right:1px solid var(--line)}
@@ -122,7 +124,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .c-Promotion{background:#3a2010;border-color:#7a4010;color:#fb923c}
 .c-Other{background:#1e2235;border-color:#3a4060;color:#94a3b8}
 
-/* Detail */
+/* Clear all banner */
+.clear-all-bar{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#1a0a0a;border-bottom:1px solid #3a1515;flex-shrink:0}
+.clear-all-bar span{font-size:11px;font-family:var(--m);color:var(--muted)}
+.btn-clear-all{padding:3px 11px;border-radius:5px;border:1px solid #5a2020;background:#2a1010;color:var(--err);font-size:11px;font-family:var(--f);font-weight:700;cursor:pointer;transition:all .1s}
+.btn-clear-all:hover{background:#3a1414;border-color:var(--err)}
+
 .det{flex:1;overflow-y:auto;padding:22px 26px;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
 .det-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
 .det-sub{font-size:18px;font-weight:700;color:#e8edf5;line-height:1.3;letter-spacing:-.03em;flex:1}
@@ -138,7 +145,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .mdate{font-size:11px;color:var(--muted);font-family:var(--m);white-space:nowrap;flex-shrink:0}
 .mbody{font-size:13px;line-height:1.7;color:var(--muted);white-space:pre-wrap;word-break:break-word}
 
-/* States */
 .state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 24px;text-align:center}
 .state-icon{font-size:30px;opacity:.25}
 .state-msg{font-size:14px;font-weight:600;color:var(--text);opacity:.45}
@@ -149,7 +155,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .spin.lg{width:30px;height:30px;border-width:3px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-/* Auth */
 .auth{display:none;align-items:center;justify-content:center;height:100vh;background:var(--bg);padding:24px}
 .auth.show{display:flex}
 .auth-card{background:var(--surf);border:1px solid var(--line2);border-radius:16px;padding:40px 48px;max-width:420px;width:100%;text-align:center;display:flex;flex-direction:column;gap:16px}
@@ -163,7 +168,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .setup-box a{color:var(--warn)}
 .setup-box code{background:rgba(255,255,255,.07);border-radius:3px;padding:1px 5px}
 
-/* Toast & Busy */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;pointer-events:none;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;display:none}
 .toast.show{display:block;animation:tin .2s ease}
 @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%)}}
@@ -172,11 +176,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .toast.err{background:#2a1010;border:1px solid #4a2020;color:var(--err)}
 .busy{display:none;position:fixed;inset:0;background:rgba(7,8,12,.65);flex-direction:column;align-items:center;justify-content:center;z-index:900;gap:14px;font-size:13px;color:var(--muted);backdrop-filter:blur(4px)}
 .busy.show{display:flex}
+
+/* Confirm dialog */
+.cdlg-wrap{display:none;position:fixed;inset:0;background:rgba(7,8,12,.7);z-index:800;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.cdlg-wrap.show{display:flex}
+.cdlg{background:var(--surf2);border:1px solid var(--line2);border-radius:12px;padding:24px 28px;max-width:400px;width:90%;display:flex;flex-direction:column;gap:14px}
+.cdlg-title{font-size:16px;font-weight:700;color:#e8edf5;letter-spacing:-.02em}
+.cdlg-msg{font-size:13px;color:var(--muted);line-height:1.6}
+.cdlg-btns{display:flex;gap:8px;justify-content:flex-end}
+.cdlg-cancel{padding:6px 16px;border-radius:6px;border:1px solid var(--line2);background:transparent;color:var(--muted);font-family:var(--f);font-size:13px;cursor:pointer}
+.cdlg-cancel:hover{border-color:var(--acc);color:var(--acc)}
+.cdlg-ok{padding:6px 16px;border-radius:6px;border:1px solid #5a2020;background:#2a1010;color:var(--err);font-family:var(--f);font-size:13px;font-weight:700;cursor:pointer}
+.cdlg-ok:hover{background:#3a1414}
 </style>
 </head>
 <body>
 
-<!-- Auth screen -->
 <div id="auth-screen" class="auth">
   <div class="auth-card">
     <div class="auth-mark">M</div>
@@ -187,7 +202,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   </div>
 </div>
 
-<!-- App -->
 <div id="app-screen" class="app" style="display:none">
   <aside class="sb">
     <div class="logo">
@@ -212,9 +226,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
     <div class="abar" id="abar">
       <span class="sel-n" id="sel-count">0</span>
-      <button class="ab ab-arch" id="btn-archive">Archive</button>
-      <button class="ab ab-read" id="btn-read">Mark Read</button>
-      <button class="ab ab-del"  id="btn-trash">Trash</button>
+      <button class="ab ab-arch"     id="btn-archive">Archive</button>
+      <button class="ab ab-read"     id="btn-read">Mark Read</button>
+      <button class="ab ab-del"      id="btn-trash">Trash</button>
+      <button class="ab ab-filter"   id="btn-make-filter">Make Filter</button>
+      <button class="ab ab-sender"   id="btn-del-sender">Delete All From Sender</button>
+      <button class="ab ab-empty-trash" id="btn-empty-trash-sel">Empty Trash</button>
       <div class="lw" id="lw">
         <button class="ab ab-lbl" id="btn-lbl">Label ▾</button>
         <div class="ldrop" id="ldrop">
@@ -239,22 +256,28 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   </main>
 </div>
 
+<!-- Custom confirm dialog -->
+<div class="cdlg-wrap" id="cdlg-wrap">
+  <div class="cdlg">
+    <div class="cdlg-title" id="cdlg-title">Are you sure?</div>
+    <div class="cdlg-msg"   id="cdlg-msg"></div>
+    <div class="cdlg-btns">
+      <button class="cdlg-cancel" id="cdlg-cancel">Cancel</button>
+      <button class="cdlg-ok"     id="cdlg-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <div class="busy" id="busy"><div class="spin lg"></div><span id="busy-msg">Working…</span></div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════
-//  CONFIG
-// ════════════════════════════════════════════════════
-const GOOGLE_CLIENT_ID  = "514858431339-5v6bb7egs8cirjnp1h4fa24tso511acp.apps.googleusercontent.com";   // ← paste your OAuth 2.0 client ID here
+const GOOGLE_CLIENT_ID  = "514858431339-5v6bb7egs8cirjnp1h4fa24tso511acp.apps.googleusercontent.com";
 const GEMINI_WORKER_URL = "https://twilight-dew-e570.jacobdsiler.workers.dev";
 
-// ════════════════════════════════════════════════════
-//  State
-// ════════════════════════════════════════════════════
 let _tok = null, threads = [], selected = new Set();
 let gmailLabels = [], customFilters = [], openThreadId = null;
-let activeFilterId = "inbox", toastTimer;
+let activeFilterId = "inbox", activeQuery = "in:inbox", toastTimer;
 
 const FK = "mailctrl_filters_v2";
 function loadCF(){ try{ return JSON.parse(localStorage.getItem(FK)||"[]"); }catch{ return []; } }
@@ -268,185 +291,105 @@ const BUILTIN = [
   {id:"promotions", icon:"◉", label:"Promotions",   query:"category:promotions"},
   {id:"social",     icon:"◎", label:"Social",       query:"category:social"},
   {id:"old90",      icon:"◷", label:"Old (90d+)",   query:"in:inbox older_than:90d"},
-];
+  {id:"trash",      icon:"⊗", label:"Trash",        query:"in:trash"},
+].map(f=>({...f,builtin:true}));
 
-// ════════════════════════════════════════════════════
-//  Gmail REST
-// ════════════════════════════════════════════════════
-const GM = "https://gmail.googleapis.com/gmail/v1/users/me";
-
-async function gFetch(path, opts={}){
-  const r = await fetch(GM+path,{
-    ...opts,
-    headers:{Authorization:`Bearer ${_tok}`,"Content-Type":"application/json",...(opts.headers||{})},
+// ── Confirm dialog ──────────────────────────────────
+function confirm(title, msg){ 
+  return new Promise(res=>{
+    $("cdlg-title").textContent=title;
+    $("cdlg-msg").textContent=msg;
+    $("cdlg-wrap").classList.add("show");
+    const ok=$("cdlg-ok"), cancel=$("cdlg-cancel");
+    function cleanup(val){ $("cdlg-wrap").classList.remove("show"); ok.removeEventListener("click",onOk); cancel.removeEventListener("click",onCancel); res(val); }
+    function onOk(){ cleanup(true); }
+    function onCancel(){ cleanup(false); }
+    ok.addEventListener("click",onOk);
+    cancel.addEventListener("click",onCancel);
   });
-  if(r.status===401){ _tok=null; throw new Error("auth_expired"); }
-  if(!r.ok){ throw new Error(`Gmail ${r.status}`); }
+}
+
+// ── Gmail REST ──────────────────────────────────────
+const GM = "https://gmail.googleapis.com/gmail/v1/users/me";
+async function gFetch(path,opts={}){
+  const r=await fetch(GM+path,{...opts,headers:{Authorization:`Bearer ${_tok}`,"Content-Type":"application/json",...(opts.headers||{})}});
+  if(r.status===401){_tok=null;throw new Error("auth_expired");}
+  if(!r.ok){throw new Error(`Gmail ${r.status}`);}
   return r.json();
 }
-
-function b64d(s){ try{ return atob(s.replace(/-/g,"+").replace(/_/g,"/")); }catch{ return ""; } }
-function hdr(arr=[],name){ return arr.find(h=>h.name.toLowerCase()===name.toLowerCase())?.value||""; }
-
-function stripHtml(h){
-  return h.replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<script[\s\S]*?<\/script>/gi,"")
-          .replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/&amp;/g,"&")
-          .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/\s{3,}/g,"\n").trim();
-}
-
+function b64d(s){try{return atob(s.replace(/-/g,"+").replace(/_/g,"/"));}catch{return "";}}
+function hdr(arr=[],name){return arr.find(h=>h.name.toLowerCase()===name.toLowerCase())?.value||"";}
+function stripHtml(h){return h.replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<script[\s\S]*?<\/script>/gi,"").replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/\s{3,}/g,"\n").trim();}
 function extractBody(p,d=0){
-  if(!p||d>6) return "";
-  if(p.body?.data){ const r=b64d(p.body.data); return p.mimeType==="text/html"?stripHtml(r):r; }
-  if(!p.parts) return "";
+  if(!p||d>6)return"";
+  if(p.body?.data){const r=b64d(p.body.data);return p.mimeType==="text/html"?stripHtml(r):r;}
+  if(!p.parts)return"";
   const plain=p.parts.find(x=>x.mimeType==="text/plain");
-  if(plain) return extractBody(plain,d+1);
+  if(plain)return extractBody(plain,d+1);
   const html=p.parts.find(x=>x.mimeType==="text/html");
-  if(html) return extractBody(html,d+1);
-  for(const x of p.parts){ const t=extractBody(x,d+1); if(t) return t; }
-  return "";
+  if(html)return extractBody(html,d+1);
+  for(const x of p.parts){const t=extractBody(x,d+1);if(t)return t;}
+  return"";
 }
-
 function findUnsub(p,d=0){
-  if(!p||d>6) return null;
+  if(!p||d>6)return null;
   const body=p.body?.data?b64d(p.body.data):"";
   const m=body.match(/https?:\/\/[^\s"'<>]+unsubscri[^\s"'<>]*/i);
-  if(m) return m[0];
-  if(p.parts) for(const x of p.parts){ const u=findUnsub(x,d+1); if(u) return u; }
+  if(m)return m[0];
+  if(p.parts)for(const x of p.parts){const u=findUnsub(x,d+1);if(u)return u;}
   return null;
 }
-
-function senderName(from=""){
-  const m=from.match(/^"?([^"<]+)"?\s*</);
-  return (m?m[1].trim():from.replace(/<[^>]+>/,"").trim())||from;
-}
-
-function fmtDate(s=""){
-  try{
-    const d=new Date(s),n=new Date();
-    if(d.toDateString()===n.toDateString()) return d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-    if(d.getFullYear()===n.getFullYear()) return d.toLocaleDateString([],{month:"short",day:"numeric"});
-    return d.toLocaleDateString([],{month:"short",day:"numeric",year:"2-digit"});
-  }catch{ return s.slice(0,10); }
-}
-
-function esc(s=""){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function senderName(from=""){const m=from.match(/^"?([^"<]+)"?\s*</);return(m?m[1].trim():from.replace(/<[^>]+>/,"").trim())||from;}
+function senderEmail(from=""){const m=from.match(/<([^>]+)>/);return m?m[1].trim():from.trim();}
+function fmtDate(s=""){try{const d=new Date(s),n=new Date();if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});if(d.getFullYear()===n.getFullYear())return d.toLocaleDateString([],{month:"short",day:"numeric"});return d.toLocaleDateString([],{month:"short",day:"numeric",year:"2-digit"});}catch{return s.slice(0,10);}}
+function esc(s=""){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
 async function fetchThreadList(query,max=30){
   const list=await gFetch(`/threads?q=${encodeURIComponent(query)}&maxResults=${max}&fields=threads(id,snippet)`);
-  if(!list.threads?.length) return [];
-  const detailed=await Promise.all(
-    list.threads.map(t=>
-      gFetch(`/threads/${t.id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From&metadataHeaders=Date`)
-        .then(d=>({...d,_snip:t.snippet})).catch(()=>null)
-    )
-  );
+  if(!list.threads?.length)return[];
+  const detailed=await Promise.all(list.threads.map(t=>gFetch(`/threads/${t.id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From&metadataHeaders=Date`).then(d=>({...d,_snip:t.snippet})).catch(()=>null)));
   return detailed.filter(Boolean).map(t=>{
-    const msgs=t.messages||[]; if(!msgs[0]) return null;
+    const msgs=t.messages||[];if(!msgs[0])return null;
     const h=msgs[0].payload?.headers||[];
     const lh=(msgs[msgs.length-1]?.payload?.headers)||h;
-    return{ id:t.id,snippet:t._snip||"",
-      subject:hdr(h,"Subject")||"(no subject)",from:senderName(hdr(h,"From")),
-      date:fmtDate(hdr(lh,"Date")),unread:msgs.some(m=>(m.labelIds||[]).includes("UNREAD")),
-      count:msgs.length,category:null };
+    return{id:t.id,snippet:t._snip||"",subject:hdr(h,"Subject")||"(no subject)",from:senderName(hdr(h,"From")),fromRaw:hdr(h,"From"),date:fmtDate(hdr(lh,"Date")),unread:msgs.some(m=>(m.labelIds||[]).includes("UNREAD")),count:msgs.length,category:null};
   }).filter(Boolean);
 }
 
 async function fetchThreadDetail(id){
   const t=await gFetch(`/threads/${id}?format=full`);
-  const msgs=(t.messages||[]).map(m=>{
-    const h=m.payload?.headers||[];
-    return{ from:hdr(h,"From"),to:hdr(h,"To"),date:fmtDate(hdr(h,"Date")),
-      subject:hdr(h,"Subject"),body:extractBody(m.payload).slice(0,3000),unsub:findUnsub(m.payload) };
-  });
+  const msgs=(t.messages||[]).map(m=>{const h=m.payload?.headers||[];return{from:hdr(h,"From"),to:hdr(h,"To"),date:fmtDate(hdr(h,"Date")),subject:hdr(h,"Subject"),body:extractBody(m.payload).slice(0,3000),unsub:findUnsub(m.payload)};});
   const listUnsub=hdr(t.messages?.[0]?.payload?.headers||[],"List-Unsubscribe").match(/https?:\/\/[^\s>]+/)?.[0]||null;
-  return{ id:t.id,subject:msgs[0]?.subject||"(no subject)",messages:msgs,
-    unsubscribeLink:listUnsub||msgs.reduce((u,m)=>u||m.unsub,null) };
+  return{id:t.id,subject:msgs[0]?.subject||"(no subject)",messages:msgs,unsubscribeLink:listUnsub||msgs.reduce((u,m)=>u||m.unsub,null)};
 }
 
-async function modifyThread(id,add=[],remove=[]){
-  return gFetch(`/threads/${id}/modify`,{method:"POST",body:JSON.stringify({addLabelIds:add,removeLabelIds:remove})});
-}
-async function trashThreadAPI(id){ return gFetch(`/threads/${id}/trash`,{method:"POST"}); }
+async function modifyThread(id,add=[],remove=[]){return gFetch(`/threads/${id}/modify`,{method:"POST",body:JSON.stringify({addLabelIds:add,removeLabelIds:remove})});}
+async function trashThreadAPI(id){return gFetch(`/threads/${id}/trash`,{method:"POST"});}
+async function deleteThreadAPI(id){return gFetch(`/threads/${id}`,{method:"DELETE"});}
 
-async function fetchLabels(){
-  const d=await gFetch("/labels?fields=labels(id,name,type)");
-  return (d.labels||[]).filter(l=>l.type==="user").map(l=>({id:l.id,name:l.name}));
-}
+async function fetchLabels(){const d=await gFetch("/labels?fields=labels(id,name,type)");return(d.labels||[]).filter(l=>l.type==="user").map(l=>({id:l.id,name:l.name}));}
+async function ensureLabel(name){const found=gmailLabels.find(l=>l.name.toLowerCase()===name.toLowerCase());if(found)return found.id;const c=await gFetch("/labels",{method:"POST",body:JSON.stringify({name})});gmailLabels.push({id:c.id,name});renderLabelDropdown();return c.id;}
 
-async function ensureLabel(name){
-  const found=gmailLabels.find(l=>l.name.toLowerCase()===name.toLowerCase());
-  if(found) return found.id;
-  const c=await gFetch("/labels",{method:"POST",body:JSON.stringify({name})});
-  gmailLabels.push({id:c.id,name}); renderLabelDropdown();
-  return c.id;
-}
-
-// ════════════════════════════════════════════════════
-//  Gemini
-// ════════════════════════════════════════════════════
+// ── Gemini ──────────────────────────────────────────
 async function callGemini(prompt){
-  const r=await fetch(GEMINI_WORKER_URL,{
-    method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({model:"gemini-2.5-flash",contents:[{parts:[{text:prompt}]}]}),
-  });
-  if(!r.ok) throw new Error(`Gemini ${r.status}`);
+  const r=await fetch(GEMINI_WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"gemini-2.5-flash",contents:[{parts:[{text:prompt}]}]})});
+  if(!r.ok)throw new Error(`Gemini ${r.status}`);
   const d=await r.json();
   return d?.candidates?.[0]?.content?.parts?.[0]?.text||d?.text||"";
 }
+function parseAI(text){try{const c=text.replace(/```(?:json)?\n?/g,"").replace(/```/g,"").trim();const m=c.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);return m?JSON.parse(m[0]):JSON.parse(c);}catch{return null;}}
 
-function parseAI(text){
-  try{
-    const c=text.replace(/```(?:json)?\n?/g,"").replace(/```/g,"").trim();
-    const m=c.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
-    return m?JSON.parse(m[0]):JSON.parse(c);
-  }catch{ return null; }
-}
+// ── UI helpers ───────────────────────────────────────
+function $(id){return document.getElementById(id);}
+function notify(msg,type="info"){const el=$("toast");el.textContent=msg;el.className=`toast ${type} show`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),3800);}
+function setBusy(on,msg="Working…"){$("busy").classList.toggle("show",on);$("busy-msg").textContent=msg;document.querySelectorAll(".ab").forEach(b=>b.disabled=on);}
 
-// ════════════════════════════════════════════════════
-//  UI helpers
-// ════════════════════════════════════════════════════
-function $(id){ return document.getElementById(id); }
+// ── Selection ────────────────────────────────────────
+function updateActionBar(){const n=selected.size;$("abar").classList.toggle("show",n>0);$("sel-count").textContent=n;}
+function toggleSel(id){selected.has(id)?selected.delete(id):selected.add(id);const row=document.querySelector(`.tr[data-id="${CSS.escape(id)}"]`);if(row){row.classList.toggle("sel",selected.has(id));const cb=row.querySelector(".cb");if(cb)cb.checked=selected.has(id);}const allCb=$("cb-all");if(allCb)allCb.checked=selected.size===threads.length&&threads.length>0;updateActionBar();}
+function clearSel(){selected=new Set();document.querySelectorAll(".tr.sel").forEach(r=>{r.classList.remove("sel");const cb=r.querySelector(".cb");if(cb)cb.checked=false;});const a=$("cb-all");if(a)a.checked=false;updateActionBar();}
 
-function notify(msg,type="info"){
-  const el=$("toast");
-  el.textContent=msg; el.className=`toast ${type} show`;
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove("show"),3800);
-}
-
-function setBusy(on,msg="Working…"){
-  $("busy").classList.toggle("show",on);
-  $("busy-msg").textContent=msg;
-  document.querySelectorAll(".ab").forEach(b=>b.disabled=on);
-}
-
-// ════════════════════════════════════════════════════
-//  Selection
-// ════════════════════════════════════════════════════
-function updateActionBar(){
-  const n=selected.size;
-  $("abar").classList.toggle("show",n>0);
-  $("sel-count").textContent=n;
-}
-
-function toggleSel(id){
-  selected.has(id)?selected.delete(id):selected.add(id);
-  const row=document.querySelector(`.tr[data-id="${CSS.escape(id)}"]`);
-  if(row){ row.classList.toggle("sel",selected.has(id)); const cb=row.querySelector(".cb"); if(cb)cb.checked=selected.has(id); }
-  const allCb=$("cb-all"); if(allCb) allCb.checked=selected.size===threads.length&&threads.length>0;
-  updateActionBar();
-}
-
-function clearSel(){
-  selected=new Set();
-  document.querySelectorAll(".tr.sel").forEach(r=>{ r.classList.remove("sel"); const cb=r.querySelector(".cb"); if(cb)cb.checked=false; });
-  const a=$("cb-all"); if(a)a.checked=false;
-  updateActionBar();
-}
-
-// ════════════════════════════════════════════════════
-//  Thread list
-// ════════════════════════════════════════════════════
+// ── Thread list ──────────────────────────────────────
 function renderThreadList(){
   const container=$("tlist");
   if(!threads.length){
@@ -458,6 +401,7 @@ function renderThreadList(){
     <input type="checkbox" class="cb" id="cb-all">
     <span class="lmeta">${threads.length} threads</span>
     ${unread?`<span class="lmeta r">${unread} unread</span>`:""}
+    <button class="btn-clear-all" id="lhead-clear-all" style="margin-left:auto;font-size:10px;padding:2px 9px;border-radius:4px;border:1px solid #5a2020;background:#2a1010;color:var(--err);font-family:var(--m);cursor:pointer;">Clear All</button>
   </div>`;
   threads.forEach(t=>{
     const isSel=selected.has(t.id),isOpen=openThreadId===t.id;
@@ -475,158 +419,215 @@ function renderThreadList(){
   container.classList.toggle("split",openThreadId!==null);
 
   $("cb-all")?.addEventListener("change",e=>{
-    if(e.target.checked) threads.forEach(t=>{ if(!selected.has(t.id)) toggleSel(t.id); });
-    else threads.forEach(t=>{ if(selected.has(t.id)) toggleSel(t.id); });
+    if(e.target.checked)threads.forEach(t=>{if(!selected.has(t.id))toggleSel(t.id);});
+    else threads.forEach(t=>{if(selected.has(t.id))toggleSel(t.id);});
   });
+  $("lhead-clear-all")?.addEventListener("click",clearAllThreads);
   container.querySelectorAll(".tr").forEach(row=>{
     const id=row.dataset.id;
     const cb=row.querySelector(".cb");
-    cb?.addEventListener("change",e=>{ e.stopPropagation(); toggleSel(id); });
+    cb?.addEventListener("change",e=>{e.stopPropagation();toggleSel(id);});
     cb?.addEventListener("click",e=>e.stopPropagation());
     row.addEventListener("click",()=>openThread(id));
   });
 }
 
-// ════════════════════════════════════════════════════
-//  Thread detail
-// ════════════════════════════════════════════════════
-function showDetailLoading(){
-  $("det").style.display="block";
-  $("tlist").classList.add("split");
-  $("det").innerHTML=`<div class="state"><div class="spin lg"></div><div class="state-msg">Loading thread…</div></div>`;
+// ── Clear all loaded threads ─────────────────────────
+async function clearAllThreads(){
+  if(!threads.length)return;
+  const isTrash=activeFilterId==="trash";
+  const action=isTrash?"permanently delete":"trash";
+  const ok=await confirm("Clear all threads",`${action==="trash"?"Move":"Permanently delete"} all ${threads.length} loaded thread(s)? This cannot be undone.`);
+  if(!ok)return;
+  const ids=threads.map(t=>t.id);
+  setBusy(true,`${isTrash?"Deleting":"Trashing"} ${ids.length}…`);
+  let done=0;
+  await Promise.all(ids.map(id=>(isTrash?deleteThreadAPI(id):trashThreadAPI(id)).then(()=>done++).catch(()=>{})));
+  threads=[];selected=new Set();if(openThreadId&&ids.includes(openThreadId))closeDetail();
+  updateActionBar();renderThreadList();
+  notify(`${done} ${isTrash?"deleted":"trashed"} ✓`,"ok");
+  setBusy(false);
+  // auto-refresh
+  setTimeout(()=>loadThreads(activeQuery,activeFilterId),600);
 }
 
+// ── Thread detail ────────────────────────────────────
+function showDetailLoading(){$("det").style.display="block";$("tlist").classList.add("split");$("det").innerHTML=`<div class="state"><div class="spin lg"></div><div class="state-msg">Loading thread…</div></div>`;}
 function renderDetail(d){
-  if(d.error){ $("det").innerHTML=`<div class="state"><div class="state-icon">⚠</div><div class="state-msg">${esc(d.error)}</div></div>`; return; }
+  if(d.error){$("det").innerHTML=`<div class="state"><div class="state-icon">⚠</div><div class="state-msg">${esc(d.error)}</div></div>`;return;}
   let html=`<div class="det-top"><div class="det-sub">${esc(d.subject)}</div><button class="det-close" id="det-close">✕</button></div>`;
-  if(d.unsubscribeLink) html+=`<div class="unsub-bar"><span>◈ Unsubscribe link found</span><a href="${esc(d.unsubscribeLink)}" target="_blank" rel="noopener noreferrer">Unsubscribe ↗</a></div>`;
-  (d.messages||[]).forEach(m=>{
-    html+=`<div class="mb"><div class="mh"><div><div class="mfrom">${esc(m.from)}</div>${m.to?`<div class="mto">to ${esc(m.to)}</div>`:""}</div><div class="mdate">${esc(m.date)}</div></div><div class="mbody">${esc(m.body||"(empty)")}</div></div>`;
-  });
+  if(d.unsubscribeLink)html+=`<div class="unsub-bar"><span>◈ Unsubscribe link found</span><a href="${esc(d.unsubscribeLink)}" target="_blank" rel="noopener noreferrer">Unsubscribe ↗</a></div>`;
+  (d.messages||[]).forEach(m=>{html+=`<div class="mb"><div class="mh"><div><div class="mfrom">${esc(m.from)}</div>${m.to?`<div class="mto">to ${esc(m.to)}</div>`:""}</div><div class="mdate">${esc(m.date)}</div></div><div class="mbody">${esc(m.body||"(empty)")}</div></div>`;});
   $("det").innerHTML=html;
   $("det-close")?.addEventListener("click",closeDetail);
 }
-
-function closeDetail(){
-  openThreadId=null;
-  $("det").style.display="none";
-  $("tlist").classList.remove("split");
-  renderThreadList();
-}
-
+function closeDetail(){openThreadId=null;$("det").style.display="none";$("tlist").classList.remove("split");renderThreadList();}
 async function openThread(id){
-  if(openThreadId===id){ closeDetail(); return; }
+  if(openThreadId===id){closeDetail();return;}
   openThreadId=id;
-  const t=threads.find(x=>x.id===id); if(t) t.unread=false;
-  renderThreadList(); showDetailLoading();
-  try{ renderDetail(await fetchThreadDetail(id)); }
-  catch(e){ renderDetail({error:e.message}); }
+  const t=threads.find(x=>x.id===id);if(t)t.unread=false;
+  renderThreadList();showDetailLoading();
+  try{renderDetail(await fetchThreadDetail(id));}catch(e){renderDetail({error:e.message});}
 }
 
-// ════════════════════════════════════════════════════
-//  Load threads
-// ════════════════════════════════════════════════════
+// ── Load threads ─────────────────────────────────────
 async function loadThreads(query,filterId){
-  selected=new Set(); openThreadId=null;
-  $("det").style.display="none"; $("tlist").classList.remove("split");
+  selected=new Set();openThreadId=null;
+  $("det").style.display="none";$("tlist").classList.remove("split");
   if(filterId){
-    activeFilterId=filterId;
+    activeFilterId=filterId;activeQuery=query;
     const all=[...BUILTIN,...customFilters];
     $("active-label").textContent=all.find(f=>f.id===filterId)?.label||filterId;
   }
   $("tlist").innerHTML=`<div class="state"><div class="spin lg"></div><div class="state-msg">Fetching threads…</div><div class="state-sub">Gmail REST API</div></div>`;
-  updateActionBar(); renderNav();
+  updateActionBar();renderNav();
   try{
     threads=await fetchThreadList(query);
     renderThreadList();
     notify(`${threads.length} threads loaded`,"ok");
   }catch(e){
-    if(e.message==="auth_expired"){ notify("Session expired","err"); showAuth(); return; }
-    notify(e.message.slice(0,80),"err"); threads=[];
+    if(e.message==="auth_expired"){notify("Session expired","err");showAuth();return;}
+    notify(e.message.slice(0,80),"err");threads=[];
     $("tlist").innerHTML=`<div class="state"><div class="state-icon">⚠</div><div class="state-msg">Load failed — check console</div></div>`;
   }
 }
 
-// ════════════════════════════════════════════════════
-//  Smart Sort
-// ════════════════════════════════════════════════════
+// ── Smart Sort ───────────────────────────────────────
 async function smartSort(){
-  if(!threads.length){ notify("Load threads first","info"); return; }
+  if(!threads.length){notify("Load threads first","info");return;}
   setBusy(true,"Gemini is categorising your inbox…");
   try{
     const sample=threads.slice(0,30).map(t=>({id:t.id,from:t.from,subject:t.subject,snippet:t.snippet.slice(0,80)}));
-    const text=await callGemini(`Categorise each email thread. Reply ONLY with a JSON array, no markdown.
-Categories: Newsletter|Notification|Personal|Work|Finance|Social|Promotion|Other
-Input: ${JSON.stringify(sample)}
-Output format: [{"id":"...","category":"..."},...]`);
+    const text=await callGemini(`Categorise each email thread. Reply ONLY with a JSON array, no markdown.\nCategories: Newsletter|Notification|Personal|Work|Finance|Social|Promotion|Other\nInput: ${JSON.stringify(sample)}\nOutput format: [{"id":"...","category":"..."},...]`);
     const cats=parseAI(text);
-    if(Array.isArray(cats)){
-      const map={}; cats.forEach(c=>{ if(c.id) map[c.id]=c.category; });
-      threads.forEach(t=>{ if(map[t.id]) t.category=map[t.id]; });
-      renderThreadList(); notify("Inbox categorised ✦","ok");
-    }else notify("AI response unclear — try again","err");
-  }catch(e){ notify(e.message.slice(0,80),"err"); }
+    if(Array.isArray(cats)){const map={};cats.forEach(c=>{if(c.id)map[c.id]=c.category;});threads.forEach(t=>{if(map[t.id])t.category=map[t.id];});renderThreadList();notify("Inbox categorised ✦","ok");}
+    else notify("AI response unclear — try again","err");
+  }catch(e){notify(e.message.slice(0,80),"err");}
   setBusy(false);
 }
 
-// ════════════════════════════════════════════════════
-//  Bulk actions
-// ════════════════════════════════════════════════════
+// ── Bulk actions ─────────────────────────────────────
 async function archiveSelected(){
-  if(!selected.size) return;
-  const ids=[...selected]; setBusy(true,`Archiving ${ids.length}…`); let ok=0;
+  if(!selected.size)return;
+  const ids=[...selected];setBusy(true,`Archiving ${ids.length}…`);let ok=0;
   await Promise.all(ids.map(id=>modifyThread(id,[],["INBOX"]).then(()=>ok++).catch(()=>{})));
   threads=threads.filter(t=>!ids.includes(t.id));
-  if(ids.includes(openThreadId)) closeDetail();
-  selected=new Set(); updateActionBar(); renderThreadList();
-  notify(`${ok} archived ✓`,"ok"); setBusy(false);
+  if(ids.includes(openThreadId))closeDetail();
+  selected=new Set();updateActionBar();renderThreadList();
+  notify(`${ok} archived ✓`,"ok");setBusy(false);
+  if(!threads.length)loadThreads(activeQuery,activeFilterId);
 }
 
 async function markReadSelected(){
-  if(!selected.size) return;
-  const ids=[...selected]; setBusy(true,"Marking as read…");
+  if(!selected.size)return;
+  const ids=[...selected];setBusy(true,"Marking as read…");
   await Promise.all(ids.map(id=>modifyThread(id,[],["UNREAD"]).catch(()=>{})));
-  threads.forEach(t=>{ if(ids.includes(t.id)) t.unread=false; });
-  selected=new Set(); updateActionBar(); renderThreadList();
-  notify("Marked as read ✓","ok"); setBusy(false);
+  threads.forEach(t=>{if(ids.includes(t.id))t.unread=false;});
+  selected=new Set();updateActionBar();renderThreadList();
+  notify("Marked as read ✓","ok");setBusy(false);
 }
 
 async function trashSelected(){
-  if(!selected.size) return;
-  if(!confirm(`Move ${selected.size} thread(s) to Trash?`)) return;
-  const ids=[...selected]; setBusy(true,`Trashing ${ids.length}…`); let ok=0;
-  await Promise.all(ids.map(id=>trashThreadAPI(id).then(()=>ok++).catch(()=>{})));
+  if(!selected.size)return;
+  const ok=await confirm("Move to Trash",`Move ${selected.size} thread(s) to Trash?`);
+  if(!ok)return;
+  const ids=[...selected];setBusy(true,`Trashing ${ids.length}…`);let done=0;
+  await Promise.all(ids.map(id=>trashThreadAPI(id).then(()=>done++).catch(()=>{})));
   threads=threads.filter(t=>!ids.includes(t.id));
-  if(ids.includes(openThreadId)) closeDetail();
-  selected=new Set(); updateActionBar(); renderThreadList();
-  notify(`${ok} trashed ✓`,"ok"); setBusy(false);
+  if(ids.includes(openThreadId))closeDetail();
+  selected=new Set();updateActionBar();renderThreadList();
+  notify(`${done} trashed ✓`,"ok");setBusy(false);
+  if(!threads.length)loadThreads(activeQuery,activeFilterId);
 }
 
 async function applyLabel(name){
-  if(!selected.size||!name.trim()) return;
+  if(!selected.size||!name.trim())return;
   $("ldrop").classList.remove("open");
-  const ids=[...selected]; setBusy(true,`Applying "${name}"…`);
-  try{
-    const lid=await ensureLabel(name.trim());
-    await Promise.all(ids.map(id=>modifyThread(id,[lid],[]).catch(()=>{})));
-    selected=new Set(); updateActionBar(); notify(`"${name}" applied ✓`,"ok");
-  }catch(e){ notify(e.message.slice(0,80),"err"); }
+  const ids=[...selected];setBusy(true,`Applying "${name}"…`);
+  try{const lid=await ensureLabel(name.trim());await Promise.all(ids.map(id=>modifyThread(id,[lid],[]).catch(()=>{})));selected=new Set();updateActionBar();notify(`"${name}" applied ✓`,"ok");}
+  catch(e){notify(e.message.slice(0,80),"err");}
   setBusy(false);
 }
 
-// ════════════════════════════════════════════════════
-//  Labels dropdown
-// ════════════════════════════════════════════════════
-function renderLabelDropdown(){
-  const inner=$("ldrop-inner");
-  if(!gmailLabels.length){ inner.innerHTML=`<div class="ldrop-empty">No custom labels yet</div>`; return; }
-  inner.innerHTML=gmailLabels.map(l=>`<button class="li" data-name="${esc(l.name)}">${esc(l.name)}</button>`).join("");
-  inner.querySelectorAll(".li").forEach(b=>b.addEventListener("click",()=>applyLabel(b.dataset.name)));
+// ── Make Filter from selection ───────────────────────
+function makeFilterFromSelected(){
+  if(!selected.size){notify("Select threads first","info");return;}
+  const selThreads=threads.filter(t=>selected.has(t.id));
+  const emails=[...new Set(selThreads.map(t=>senderEmail(t.fromRaw)).filter(Boolean))];
+  if(!emails.length){notify("Could not extract sender emails","err");return;}
+  const query=emails.map(e=>`from:${e}`).join(" OR ");
+  const label=emails.length===1?selThreads[0].from:`${selThreads[0].from} +${emails.length-1}`;
+  customFilters.push({id:`cf_${Date.now()}`,icon:"◆",label,query,builtin:false});
+  saveCF();renderNav();
+  notify(`Filter "${label}" saved ✓`,"ok");
 }
 
-// ════════════════════════════════════════════════════
-//  Nav / filter management
-// ════════════════════════════════════════════════════
+// ── Delete all from sender ───────────────────────────
+async function deleteAllFromSender(){
+  if(!selected.size){notify("Select threads first","info");return;}
+  const selThreads=threads.filter(t=>selected.has(t.id));
+  const emails=[...new Set(selThreads.map(t=>senderEmail(t.fromRaw)).filter(Boolean))];
+  if(!emails.length){notify("Could not extract sender emails","err");return;}
+  const senderDisplay=emails.length===1?emails[0]:`${emails[0]} and ${emails.length-1} other(s)`;
+  const ok=await confirm("Delete all from sender",`Find and permanently trash ALL emails from ${senderDisplay} across your entire mailbox? This may take a moment for large volumes.`);
+  if(!ok)return;
+  setBusy(true,`Searching all mail from ${senderDisplay}…`);
+  try{
+    let totalDone=0;
+    for(const email of emails){
+      let pageToken=null;
+      do{
+        const url=`/threads?q=${encodeURIComponent(`from:${email}`)}&maxResults=100${pageToken?`&pageToken=${pageToken}`:""}`;
+        const page=await gFetch(url);
+        const ids=(page.threads||[]).map(t=>t.id);
+        if(ids.length){
+          setBusy(true,`Trashing ${totalDone+ids.length} from ${email}…`);
+          await Promise.all(ids.map(id=>trashThreadAPI(id).catch(()=>{})));
+          totalDone+=ids.length;
+        }
+        pageToken=page.nextPageToken||null;
+      }while(pageToken);
+    }
+    threads=threads.filter(t=>!selThreads.find(s=>s.id===t.id));
+    if(selThreads.find(s=>s.id===openThreadId))closeDetail();
+    selected=new Set();updateActionBar();
+    notify(`${totalDone} threads trashed ✓`,"ok");
+    setBusy(false);
+    loadThreads(activeQuery,activeFilterId);
+  }catch(e){setBusy(false);notify(e.message.slice(0,80),"err");}
+}
+
+// ── Empty Trash ──────────────────────────────────────
+async function emptyTrash(){
+  const ok=await confirm("Empty Trash","Permanently delete ALL emails in your Trash? This cannot be undone.");
+  if(!ok)return;
+  setBusy(true,"Finding trash threads…");
+  try{
+    let pageToken=null,total=0;
+    do{
+      const url=`/threads?q=in:trash&maxResults=100${pageToken?`&pageToken=${pageToken}`:""}`;
+      const page=await gFetch(url);
+      const ids=(page.threads||[]).map(t=>t.id);
+      if(ids.length){
+        setBusy(true,`Deleting ${total+ids.length} trash threads…`);
+        await Promise.all(ids.map(id=>deleteThreadAPI(id).catch(()=>{})));
+        total+=ids.length;
+      }
+      pageToken=page.nextPageToken||null;
+    }while(pageToken);
+    threads=[];selected=new Set();
+    if(activeFilterId==="trash"||activeQuery==="in:trash"){renderThreadList();}
+    updateActionBar();
+    notify(`Trash emptied — ${total} threads deleted ✓`,"ok");
+    setBusy(false);
+    if(activeFilterId==="trash")loadThreads("in:trash","trash");
+  }catch(e){setBusy(false);notify(e.message.slice(0,80),"err");}
+}
+
+// ── Labels dropdown ───────────────────────────────────
+function renderLabelDropdown(){const inner=$("ldrop-inner");if(!gmailLabels.length){inner.innerHTML=`<div class="ldrop-empty">No custom labels yet</div>`;return;}inner.innerHTML=gmailLabels.map(l=>`<button class="li" data-name="${esc(l.name)}">${esc(l.name)}</button>`).join("");inner.querySelectorAll(".li").forEach(b=>b.addEventListener("click",()=>applyLabel(b.dataset.name)));}
+
+// ── Nav ───────────────────────────────────────────────
 function renderNav(){
   const nav=$("nav");
   const all=[...BUILTIN,...customFilters];
@@ -638,122 +639,57 @@ function renderNav(){
     </button>`;
   });
   html+=`<div id="ff-slot"></div><div class="nav-sep"></div><div class="nav-sec">AI</div>
-    <button class="nb" id="btn-smart"><span class="ni">◈</span><span class="nl">Smart Sort</span></button>`;
+    <button class="nb" id="btn-smart"><span class="ni">◈</span><span class="nl">Smart Sort</span></button>
+    <div class="nav-sep"></div><div class="nav-sec">Tools</div>
+    <button class="nb" id="btn-empty-trash-nav" style="color:#f7c86c"><span class="ni">⊗</span><span class="nl">Empty Trash</span></button>`;
   nav.innerHTML=html;
-  nav.querySelectorAll(".nb[data-fid]").forEach(b=>{
-    b.addEventListener("click",e=>{ if(e.target.classList.contains("nb-x")) return; loadThreads(b.dataset.q,b.dataset.fid); });
-  });
-  nav.querySelectorAll(".nb-x").forEach(x=>{
-    x.addEventListener("click",e=>{
-      e.stopPropagation();
-      customFilters=customFilters.filter(f=>f.id!==x.dataset.fid); saveCF();
-      if(activeFilterId===x.dataset.fid) loadThreads("in:inbox","inbox"); else renderNav();
-    });
-  });
+  nav.querySelectorAll(".nb[data-fid]").forEach(b=>{b.addEventListener("click",e=>{if(e.target.classList.contains("nb-x"))return;loadThreads(b.dataset.q,b.dataset.fid);});});
+  nav.querySelectorAll(".nb-x").forEach(x=>{x.addEventListener("click",e=>{e.stopPropagation();customFilters=customFilters.filter(f=>f.id!==x.dataset.fid);saveCF();if(activeFilterId===x.dataset.fid)loadThreads("in:inbox","inbox");else renderNav();});});
   $("btn-smart")?.addEventListener("click",smartSort);
+  $("btn-empty-trash-nav")?.addEventListener("click",emptyTrash);
   renderAddBtn();
 }
 
-function renderAddBtn(){
-  const slot=$("ff-slot");
-  if(!slot) return;
-  slot.innerHTML=`<button class="nb" id="btn-add-ff" style="color:var(--acc);opacity:.75"><span class="ni">＋</span><span class="nl">Add Filter</span></button>`;
-  $("btn-add-ff")?.addEventListener("click",showFF);
-}
+function renderAddBtn(){const slot=$("ff-slot");if(!slot)return;slot.innerHTML=`<button class="nb" id="btn-add-ff" style="color:var(--acc);opacity:.75"><span class="ni">＋</span><span class="nl">Add Filter</span></button>`;$("btn-add-ff")?.addEventListener("click",showFF);}
 
-function showFF(){
-  const slot=$("ff-slot");
-  slot.innerHTML=`<div class="ff">
-    <div class="ff-row">
-      <input class="ff-icon" id="ff-ico" value="◆" maxlength="2" title="Icon">
-      <input id="ff-name" placeholder="Filter name">
-    </div>
-    <input id="ff-q" placeholder="Gmail query  e.g.  from:news@x.com">
-    <div class="ff-btns">
-      <button id="ff-cancel">Cancel</button>
-      <button class="ff-save" id="ff-save">Save</button>
-    </div>
-  </div>`;
-  $("ff-name")?.focus();
-  $("ff-cancel")?.addEventListener("click",renderAddBtn);
-  $("ff-save")?.addEventListener("click",saveFF);
-  $("ff-q")?.addEventListener("keydown",e=>{ if(e.key==="Enter") saveFF(); });
-}
+function showFF(){const slot=$("ff-slot");slot.innerHTML=`<div class="ff"><div class="ff-row"><input class="ff-icon" id="ff-ico" value="◆" maxlength="2" title="Icon"><input id="ff-name" placeholder="Filter name"></div><input id="ff-q" placeholder="Gmail query  e.g.  from:news@x.com"><div class="ff-btns"><button id="ff-cancel">Cancel</button><button class="ff-save" id="ff-save">Save</button></div></div>`;$("ff-name")?.focus();$("ff-cancel")?.addEventListener("click",renderAddBtn);$("ff-save")?.addEventListener("click",saveFF);$("ff-q")?.addEventListener("keydown",e=>{if(e.key==="Enter")saveFF();});}
 
-function saveFF(){
-  const icon=$("ff-ico")?.value.trim()||"◆";
-  const label=$("ff-name")?.value.trim();
-  const query=$("ff-q")?.value.trim();
-  if(!label||!query){ notify("Name and query are required","err"); return; }
-  customFilters.push({id:`cf_${Date.now()}`,icon,label,query,builtin:false}); saveCF();
-  notify(`"${label}" filter saved`,"ok"); renderNav();
-}
+function saveFF(){const icon=$("ff-ico")?.value.trim()||"◆";const label=$("ff-name")?.value.trim();const query=$("ff-q")?.value.trim();if(!label||!query){notify("Name and query are required","err");return;}customFilters.push({id:`cf_${Date.now()}`,icon,label,query,builtin:false});saveCF();notify(`"${label}" filter saved`,"ok");renderNav();}
 
-// ════════════════════════════════════════════════════
-//  Auth
-// ════════════════════════════════════════════════════
-function showAuth(){
-  $("app-screen").style.display="none";
-  $("auth-screen").classList.add("show");
-  const action=$("auth-action");
-  if(!GOOGLE_CLIENT_ID){
-    action.innerHTML=`<div class="setup-box">
-      ⚠ Set <code>GOOGLE_CLIENT_ID</code> at the top of this file.<br><br>
-      1. <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a><br>
-      2. APIs &amp; Services → Enable <strong>Gmail API</strong><br>
-      3. Credentials → OAuth 2.0 Client ID (Web app)<br>
-      4. Add <code>${location.origin}</code> to Authorized JS Origins<br>
-      5. Paste the ID into the file and redeploy
-    </div>`;
-  }else{
-    action.innerHTML=`<button class="auth-btn" id="gsi-btn">Sign in with Google</button>`;
-    $("gsi-btn")?.addEventListener("click",doSignIn);
-  }
-}
+// ── Auth ──────────────────────────────────────────────
+function showAuth(){$("app-screen").style.display="none";$("auth-screen").classList.add("show");const action=$("auth-action");if(!GOOGLE_CLIENT_ID){action.innerHTML=`<div class="setup-box">⚠ Set <code>GOOGLE_CLIENT_ID</code> at the top of this file.<br><br>1. <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a><br>2. APIs &amp; Services → Enable <strong>Gmail API</strong><br>3. Credentials → OAuth 2.0 Client ID (Web app)<br>4. Add <code>${location.origin}</code> to Authorized JS Origins<br>5. Paste the ID into the file and redeploy</div>`;}else{action.innerHTML=`<button class="auth-btn" id="gsi-btn">Sign in with Google</button>`;$("gsi-btn")?.addEventListener("click",doSignIn);}}
 
 let tclient=null;
 function doSignIn(){
-  if(tclient){ tclient.requestAccessToken({prompt:""}); return; }
-  if(!window.google?.accounts?.oauth2){ notify("Google SDK loading — try again in a moment","info"); return; }
-  tclient=window.google.accounts.oauth2.initTokenClient({
-    client_id:GOOGLE_CLIENT_ID,
-    scope:"https://www.googleapis.com/auth/gmail.modify",
-    callback:async(resp)=>{
-      if(resp.error){ notify("Auth failed: "+resp.error,"err"); return; }
-      _tok=resp.access_token;
-      $("auth-screen").classList.remove("show");
-      $("app-screen").style.display="flex";
-      try{ gmailLabels=await fetchLabels(); renderLabelDropdown(); }catch{}
-      customFilters=loadCF(); renderNav();
-      loadThreads("in:inbox","inbox");
-    },
-  });
+  if(tclient){tclient.requestAccessToken({prompt:""});return;}
+  if(!window.google?.accounts?.oauth2){notify("Google SDK loading — try again in a moment","info");return;}
+  tclient=window.google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:"https://www.googleapis.com/auth/gmail.modify",callback:async(resp)=>{
+    if(resp.error){notify("Auth failed: "+resp.error,"err");return;}
+    _tok=resp.access_token;
+    $("auth-screen").classList.remove("show");$("app-screen").style.display="flex";
+    try{gmailLabels=await fetchLabels();renderLabelDropdown();}catch{}
+    customFilters=loadCF();renderNav();
+    loadThreads("in:inbox","inbox");
+  }});
   tclient.requestAccessToken({prompt:""});
 }
 
-// ════════════════════════════════════════════════════
-//  Wire-up static buttons
-// ════════════════════════════════════════════════════
-$("btn-signout").addEventListener("click",()=>{ _tok=null; threads=[]; selected=new Set(); openThreadId=null; tclient=null; showAuth(); });
-$("search-form").addEventListener("submit",e=>{ e.preventDefault(); const q=$("search-inp").value.trim(); if(q) loadThreads(q,"search"); });
+// ── Wire-up ───────────────────────────────────────────
+$("btn-signout").addEventListener("click",()=>{_tok=null;threads=[];selected=new Set();openThreadId=null;tclient=null;showAuth();});
+$("search-form").addEventListener("submit",e=>{e.preventDefault();const q=$("search-inp").value.trim();if(q)loadThreads(q,"search");});
 $("btn-archive").addEventListener("click",archiveSelected);
 $("btn-read").addEventListener("click",markReadSelected);
 $("btn-trash").addEventListener("click",trashSelected);
 $("btn-desel").addEventListener("click",clearSel);
 $("btn-lbl").addEventListener("click",()=>$("ldrop").classList.toggle("open"));
-document.addEventListener("click",e=>{ if(!$("lw")?.contains(e.target)) $("ldrop")?.classList.remove("open"); });
-$("new-lbl-btn").addEventListener("click",()=>{ const v=$("new-lbl-inp").value.trim(); if(v){ applyLabel(v); $("new-lbl-inp").value=""; } });
-$("new-lbl-inp").addEventListener("keydown",e=>{ if(e.key==="Enter"){ const v=$("new-lbl-inp").value.trim(); if(v){ applyLabel(v); $("new-lbl-inp").value=""; } } });
+document.addEventListener("click",e=>{if(!$("lw")?.contains(e.target))$("ldrop")?.classList.remove("open");});
+$("new-lbl-btn").addEventListener("click",()=>{const v=$("new-lbl-inp").value.trim();if(v){applyLabel(v);$("new-lbl-inp").value="";}});
+$("new-lbl-inp").addEventListener("keydown",e=>{if(e.key==="Enter"){const v=$("new-lbl-inp").value.trim();if(v){applyLabel(v);$("new-lbl-inp").value="";};}});
+$("btn-make-filter").addEventListener("click",makeFilterFromSelected);
+$("btn-del-sender").addEventListener("click",deleteAllFromSender);
+$("btn-empty-trash-sel").addEventListener("click",emptyTrash);
 
-// ════════════════════════════════════════════════════
-//  Boot
-// ════════════════════════════════════════════════════
-(function boot(){
-  const s=document.createElement("script");
-  s.src="https://accounts.google.com/gsi/client";
-  s.async=true; s.defer=true; document.head.appendChild(s);
-  showAuth();
-})();
+(function boot(){const s=document.createElement("script");s.src="https://accounts.google.com/gsi/client";s.async=true;s.defer=true;document.head.appendChild(s);showAuth();})();
 </script>
 </body>
 </html>
