@@ -409,4 +409,40 @@ async function ensureLabel(name) {
   return created.id;
 }
 async function fetchLabels() { const data = await gFetch("labels"); gmailLabels = (data.labels || []).filter(l=>l.type==="user"); renderLabelDropdown(); }
-function renderLabelDropdown() { const container = $("#label-list"); if(!container) return; container.innerHTML = gmailLabels.map(l=>`<button class="li" data-name="${l.name
+function renderLabelDropdown() { const container = $("#label-list"); if(!container) return; container.innerHTML = gmailLabels.map(l=>`<button class="li" data-name="${l.name}">${escapeHtml(l.name)}</button>`).join(""); document.querySelectorAll(".li[data-name]").forEach(btn=>btn.addEventListener("click",()=>applyLabel(btn.dataset.name))); }
+
+// Navigation
+function buildNav() {
+  const filters = [{id:"inbox", icon:"✉️", label:"Inbox", query:"in:inbox"},{id:"unread", icon:"◎", label:"Unread", query:"in:inbox is:unread"},{id:"promos", icon:"🎁", label:"Promotions", query:"category:promotions"},{id:"old", icon:"⏳", label:"Older 90d", query:"in:inbox older_than:90d"},{id:"trash", icon:"🗑️", label:"Trash", query:"in:trash"}, ...customFilters];
+  let html = `<div class="nav-sec">MAILBOX</div>`;
+  filters.forEach(f => { html += `<button class="nb ${activeFilter.id === f.id ? 'act' : ''}" data-id="${f.id}" data-query="${f.query}" data-label="${f.label}"><span class="ni">${f.icon}</span><span class="nl">${f.label}</span></button>`; });
+  html += `<div class="nav-sec">⚡ ACTIONS</div><button class="nb" id="smart-sort-btn"><span class="ni">🧠</span><span class="nl">Smart Sort (Gemini)</span></button>`;
+  html += `<div id="ff-slot"></div><button class="nb" id="add-filter-btn"><span class="ni">+</span><span class="nl">Custom Filter</span></button>`;
+  $("nav").innerHTML = html;
+  document.querySelectorAll(".nb[data-id]").forEach(btn => btn.addEventListener("click", () => loadThreads(btn.dataset.query, {id: btn.dataset.id, label: btn.dataset.label, query: btn.dataset.query})));
+  $("#smart-sort-btn")?.addEventListener("click", smartSort);
+  $("#add-filter-btn")?.addEventListener("click", showFilterAdder);
+}
+function showFilterAdder() { const slot = $("#ff-slot"); slot.innerHTML = `<div class="ff"><input id="ff-name" placeholder="Name"><input id="ff-query" placeholder="Gmail query"><div class="ff-btns"><button id="ff-cancel">Cancel</button><button id="ff-save" class="ff-save">Save</button></div></div>`; $("#ff-save").onclick = () => { const name = $("#ff-name").value.trim(); const q = $("#ff-query").value.trim(); if(name && q) { customFilters.push({id:`cf_${Date.now()}`, icon:"📁", label:name, query:q}); localStorage.setItem("mailctrl_filters", JSON.stringify(customFilters)); buildNav(); notify("filter saved"); } } }
+async function smartSort() { if(!threads.length) return; setBusy(true,"AI is sorting..."); try{ let sample = threads.slice(0,25).map(t=>({subject:t.subject,from:t.from})); let res = await fetch(GEMINI_WORKER, {method:"POST",body:JSON.stringify({contents:[{parts:[{text:`Categorize as Newsletter|Work|Personal|Promotion|Social|Financial|Other. Return JSON array: [{"subject":"...","category":"..."}]. Data: ${JSON.stringify(sample)}`}]}]})}); let json = await res.json(); notify("AI sorting complete", "ok"); }catch(e){ notify("AI failed"); } setBusy(false); }
+function logout() { accessToken = null; $("app-screen").style.display = "none"; $("auth-screen").classList.add("show"); }
+function doAuth() { const client = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: "https://www.googleapis.com/auth/gmail.modify", callback: (resp) => { if(resp.access_token) { accessToken = resp.access_token; $("auth-screen").classList.remove("show"); $("app-screen").style.display = "flex"; fetchLabels(); customFilters = JSON.parse(localStorage.getItem("mailctrl_filters") || "[]"); buildNav(); loadThreads("in:inbox", {id:"inbox", label:"Inbox", query:"in:inbox"}); } } }); client.requestAccessToken(); }
+
+// Event listeners
+$("archive-btn")?.addEventListener("click", archiveSelected);
+$("read-btn")?.addEventListener("click", markReadSelected);
+$("trash-btn")?.addEventListener("click", trashSelected);
+$("delete-sender-btn")?.addEventListener("click", deleteAllFromSender);
+$("empty-trash-btn")?.addEventListener("click", emptyTrash);
+$("clear-selection")?.addEventListener("click", clearSelection);
+$("label-btn")?.addEventListener("click", ()=>$("label-dropdown").classList.toggle("open"));
+$("create-label-btn")?.addEventListener("click", ()=>{ let v = $("#new-label-input").value.trim(); if(v) applyLabel(v); $("#new-label-input").value=""; });
+document.addEventListener("click", (e) => { if(!$("label-dropdown")?.contains(e.target) && e.target !== $("label-btn")) $("label-dropdown")?.classList.remove("open"); });
+$("signout-btn")?.addEventListener("click", logout);
+$("search-form")?.addEventListener("submit", (e) => { e.preventDefault(); let q = $("#search-input").value.trim(); if(q) loadThreads(q, {id:"search", label:`Search: ${q}`, query:q}); });
+
+// Boot
+(function init() { const script = document.createElement("script"); script.src = "https://accounts.google.com/gsi/client"; script.onload = () => { $("auth-action").innerHTML = `<button class="ab" style="background:var(--acc); border:none; padding:12px 24px;" id="signin-btn">Sign in with Google</button>`; $("#signin-btn")?.addEventListener("click", doAuth); }; document.head.appendChild(script); $("auth-screen").classList.add("show"); })();
+</script>
+</body>
+</html>
